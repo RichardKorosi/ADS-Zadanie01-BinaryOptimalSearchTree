@@ -7,8 +7,8 @@ def prepare_dynamic_programming(lines):
         dp[i][i] = 0
 
     # 1 node in the tree
-    for i in range(len(dp) - 1):
-        dp[i][i + 1] = lines[i][0]
+    # for i in range(len(dp) - 1):
+    #     dp[i][i + 1] = lines[i][0]
 
     return dp
 
@@ -32,7 +32,7 @@ def get_combinations_of_c(m, l):
 
 def dynamic_programming(dic, dp):
     size_dp = len(dp)
-    for l in range(2, len(dp)):
+    for l in range(1, len(dp)):
         combs_c = get_combinations_of_c(size_dp, l)
         for c in combs_c:
             w = get_w(dic, c[0], c[1])
