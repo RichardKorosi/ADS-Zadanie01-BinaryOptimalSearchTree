@@ -6,10 +6,6 @@ def prepare_dynamic_programming(lines):
     for i in range(size):
         dp[i][i] = 0
 
-    # 1 node in the tree
-    # for i in range(len(dp) - 1):
-    #     dp[i][i + 1] = lines[i][0]
-
     return dp
 
 
@@ -67,5 +63,6 @@ def main():
     dp = prepare_dynamic_programming(lines)
     dp = dynamic_programming(lines, dp)
     print_dp(dp)
+
 
 main()
