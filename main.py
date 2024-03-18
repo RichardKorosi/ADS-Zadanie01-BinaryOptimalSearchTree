@@ -1,3 +1,13 @@
+class Node:
+    def __init__(self, key, left=None, right=None):
+        self.key = key
+        self.left = left
+        self.right = right
+
+    def __str__(self):
+        return f'Node(Key:{self.key},Left:{self.left},Right{self.right})'
+
+
 def prepare_dp_arrays(lines):
     #  size + 1. pretoze chceme aj pripad ked je 0 uzlov v strome
     size = len(lines) + 1
@@ -65,6 +75,9 @@ def print_dp(dp_cost, dp_root):
             print(str(element).ljust(5), end='')
         print()
 
+
+def create_tree():
+    pass
 
 def main():
     file_path = 'easy.txt'
