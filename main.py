@@ -1,16 +1,16 @@
-# This is a sample Python script.
+def main():
+    file_path = 'dictionary.txt'
+    file = open(file_path, 'r')
+    lines = file.readlines()
+    file.close()
+    lines = [line.strip().split(' ') for line in lines]
+    lines = [[int(line[0]), line[1]] for line in lines]
+    lines = [line for line in lines if line[0] >= 50000]
+    lines = sorted(lines, key=lambda x: x[1])
+    sum_freq = sum([line[0] for line in lines])
+    lines = [[line[0]/sum_freq, line[1]] for line in lines]
+    dictionary = {line[1]: line[0] for line in lines}
+    print(dictionary)
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+main()
