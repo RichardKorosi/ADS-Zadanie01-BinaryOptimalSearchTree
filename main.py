@@ -1,3 +1,7 @@
+import matplotlib.pyplot as plt
+import networkx as nx
+
+
 class Node:
     def __init__(self, key, left=None, right=None):
         self.key = key
@@ -67,31 +71,91 @@ def create_dp_arrays(dic):
 def print_dp(dp_cost, dp_root):
     for row in dp_cost:
         for element in row:
-            print(str(element).ljust(5), end='')
+            if element is None:
+                print('None'.ljust(9), end='')
+            else:
+                print(str(round(element, 3)).ljust(9), end='')
         print()
     print()
     for row in dp_root:
         for element in row:
-            print(str(element).ljust(5), end='')
+            if element is None:
+                print('None'.ljust(9), end='')
+            else:
+                print(str(round(element, 3)).ljust(9), end='')
         print()
 
 
-def create_tree():
-    pass
+def build_tree(dp_root, lines, start, end):
+    if start == end:
+        return None
+    root_index = dp_root[start][end]
+    key = lines[root_index][1]
+    left = build_tree(dp_root, lines, start, root_index)
+    right = build_tree(dp_root, lines, root_index + 1, end)
+    return Node(key, left, right)
+
+
+def plot_tree(root, x=0, y=0, spacing=100, ax=None):
+    if ax is None:
+        fig, ax = plt.subplots()
+        ax.set_aspect('equal')
+        ax.axis('off')
+
+    if root is not None:
+        ax.plot(x, y, 'o', color='black')  # Plot the current node
+        ax.text(x, y, str(root.key), verticalalignment='bottom', horizontalalignment='center')
+
+        if root.left is not None:
+            # Plot left child and edge
+            new_spacing = spacing / 2
+            ax.plot([x, x - new_spacing], [y, y - spacing], '-', color='black')
+            plot_tree(root.left, x - new_spacing, y - spacing, new_spacing, ax)
+
+        if root.right is not None:
+            # Plot right child and edge
+            new_spacing = spacing / 2
+            ax.plot([x, x + new_spacing], [y, y - spacing], '-', color='black')
+            plot_tree(root.right, x + new_spacing, y - spacing, new_spacing, ax)
+
+
+def add_nodes_edges(G, node, pos=None, x=0, y=0, layer=1):
+    if pos is None:
+        pos = {}
+    pos[node.key] = (x, y)
+    if node.left is not None:
+        G.add_edge(node.key, node.left.key)
+        pos = add_nodes_edges(G, node.left, pos, x - 1 / layer, y - 1, layer * 2)
+    if node.right is not None:
+        G.add_edge(node.key, node.right.key)
+        pos = add_nodes_edges(G, node.right, pos, x + 1 / layer, y - 1, layer * 2)
+    return pos
+
+
+def plot_tree_2(tree):
+    G = nx.DiGraph()
+    pos = add_nodes_edges(G, tree)
+    nx.draw(G, pos, with_labels=True, node_color='white', font_size=6, arrows=False)
+    plt.show()
+
 
 def main():
-    file_path = 'easy.txt'
+    file_path = 'dictionary.txt'
     file = open(file_path, 'r')
     lines = file.readlines()
     file.close()
     lines = [line.strip().split(' ') for line in lines]
     lines = [[int(line[0]), line[1]] for line in lines]
-    # lines = [line for line in lines if line[0] >= 50000]
+    sum_freq = sum([line[0] for line in lines])
+    lines = [line for line in lines if line[0] > 50000]
     lines = sorted(lines, key=lambda x: x[1])
-    # sum_freq = sum([line[0] for line in lines])
-    # lines = [[line[0] / sum_freq, line[1]] for line in lines]
+    lines = [[line[0] / sum_freq, line[1]] for line in lines]
     dp_cost, dp_root = create_dp_arrays(lines)
-    print_dp(dp_cost, dp_root)
+    # print_dp(dp_cost, dp_root)
+
+    root = build_tree(dp_root, lines, 0, len(lines))
+    plot_tree_2(root)
+    print(dp_cost[0][len(lines)])
 
 
 main()
