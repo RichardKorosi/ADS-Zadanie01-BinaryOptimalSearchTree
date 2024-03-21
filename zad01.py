@@ -26,6 +26,8 @@ def create_triplets_k_p_q(file_path='dictionary.txt'):
     for i in range(len(keys_lines)):
         triplets.append([keys_lines[i][1], keys_lines[i][0], qs[i + 1]])
 
+    print(f'Sum in triplets: {sum([triplet[1] + triplet[2] for triplet in triplets])}')
+
     return triplets
 
 
@@ -62,8 +64,20 @@ def find_index_based_on_key(key, lines):
     return -1
 
 
+def abduls_triplets():
+    keys = ['10', '20', '30', '40']
+    pi = [3, 3, 1, 1]
+    qi = [3, 1, 1, 1]
+    triplets = [['', 0, 2]]
+    for i in range(len(keys)):
+        triplets.append([keys[i], pi[i], qi[i]])
+    return triplets
+
+
 def main():
-    triplets = create_triplets_k_p_q()
+    # triplets = create_triplets_k_p_q()
+    abdul = abduls_triplets()
+    print(abdul)
 
 
 main()
