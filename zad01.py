@@ -1,4 +1,4 @@
-def create_triplets_k_p_q(file_path='easy.txt'):
+def create_triplets_k_p_q(file_path='dictionary.txt'):
     triplets = []
     qs = []
     file = open(file_path, 'r')
@@ -8,7 +8,7 @@ def create_triplets_k_p_q(file_path='easy.txt'):
     lines = [line.strip().split(' ') for line in lines]
     lines = [[int(line[0]), line[1]] for line in lines]
     lines = sorted(lines, key=lambda x: x[1])
-    keys_lines = [line for line in lines if line[0] > 3]
+    keys_lines = [line for line in lines if line[0] > 50000]
 
     full_freq = sum([line[0] for line in lines])
     # lines = [[line[0] / full_freq, line[1]] for line in lines]
@@ -19,15 +19,14 @@ def create_triplets_k_p_q(file_path='easy.txt'):
     for key_line in keys_lines:
         qs.append(find_qi(keys_lines, lines, key_line))
 
-    # print sum of all keys_lines[0] and all qs
-    print(sum([key_line[0] for key_line in keys_lines]))
-    print(sum(qs))
-    print()
-    print(full_freq)
-    print(sum([key_line[0] for key_line in keys_lines]) + sum(qs))
-    print(full_freq - sum([key_line[0] for key_line in keys_lines]) - sum(qs))
+    print(f'My sum: {sum([key_line[0] for key_line in keys_lines]) + sum(qs)}')
+    print(f'Frequency sum: {full_freq}')
 
-    return lines
+    triplets.append(['', 0, qs[0]])
+    for i in range(len(keys_lines)):
+        triplets.append([keys_lines[i][1], keys_lines[i][0], qs[i + 1]])
+
+    return triplets
 
 
 def find_q0(key_lines, lines):
@@ -52,7 +51,6 @@ def find_qi(key_lines, lines, key_line):
         end_index = find_index_based_on_key(end_word, lines) + 1
 
     for i in range(current_index + 1, end_index):
-        word = lines[i][1]
         q += lines[i][0]
     return q
 
