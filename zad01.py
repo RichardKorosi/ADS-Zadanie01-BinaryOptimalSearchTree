@@ -1,8 +1,5 @@
 import matplotlib.pyplot as plt
 import networkx as nx
-import sys
-
-sys.setrecursionlimit(999999999)
 
 
 class Node:
@@ -84,16 +81,6 @@ def find_index_based_on_key(key, lines):
     return -1
 
 
-def abduls_triplets():
-    keys = ['10', '20', '30', '40']
-    pi = [3, 3, 1, 1]
-    qi = [3, 1, 1, 1]
-    triplets = [['', 0, 2]]
-    for i in range(len(keys)):
-        triplets.append([keys[i], pi[i], qi[i]])
-    return triplets
-
-
 def calculate_tables(n, p, q):
     c = [[0 for _ in range(n)] for _ in range(n)]
     w = [[0 for _ in range(n)] for _ in range(n)]
@@ -116,29 +103,6 @@ def calculate_tables(n, p, q):
     return c, root
 
 
-def calculate_tables2(n, p, q):
-    e = [[0 for _ in range(n + 2)] for _ in range(n + 2)]
-    w = [[0 for _ in range(n + 2)] for _ in range(n + 2)]
-    root = [[0 for _ in range(n + 1)] for _ in range(n + 1)]
-
-    for i in range(1, n + 2):
-        e[i][i - 1] = q[i - 1]
-        w[i][i - 1] = q[i - 1]
-
-    for l in range(1, n + 1):
-        for i in range(1, n - l + 2):
-            j = i + l - 1
-            e[i][j] = float('inf')
-            w[i][j] = w[i][j - 1] + p[j] + q[j]
-            for r in range(i, j + 1):
-                t = e[i][r - 1] + e[r + 1][j] + w[i][j]
-                if t < e[i][j]:
-                    e[i][j] = t
-                    root[i][j] = r
-
-    return e, root
-
-
 def build_tree(dp_root, lines, start, end):
     if start == end:
         return None
@@ -146,16 +110,6 @@ def build_tree(dp_root, lines, start, end):
     key = lines[root_index][0]
     left = build_tree(dp_root, lines, start, root_index)
     right = build_tree(dp_root, lines, root_index + 1, end)
-    return Node(key, left, right)
-
-
-def build_tree2(dp_root, lines, start, end):
-    if start > end:
-        return None
-    root_index = dp_root[start][end] - 1  # Adjust for 0-based indexing
-    key = lines[root_index][0]
-    left = build_tree2(dp_root, lines, start, root_index - 2)  # Adjust indices accordingly
-    right = build_tree2(dp_root, lines, root_index + 2, end)  # Adjust indices accordingly
     return Node(key, left, right)
 
 
@@ -179,14 +133,6 @@ def print_tree(tree):
     plt.show()
 
 
-def compare_trees(tree, tree2):
-    if tree is None and tree2 is None:
-        return True
-    if tree is None or tree2 is None:
-        return False
-    return compare_trees(tree.left, tree2.left) and compare_trees(tree.right, tree2.right)
-
-
 def binary_search(tree, word, comparisons=0):
     if tree is None:
         return False, comparisons
@@ -204,29 +150,6 @@ def main():
     triplets_to_print.pop(0)
     c1, root1 = calculate_tables(len(triplets) - 1, [triplet[1] for triplet in triplets],
                                  [triplet[2] for triplet in triplets])
-
-    print(c1[0][-1])
-
-    c2, root2 = calculate_tables2(len(triplets) - 1, [triplet[1] for triplet in triplets],
-                                  [triplet[2] for triplet in triplets])
-
-    print(c2[1][-2]) \
-        # remove first element in root2
-    root2 = root2[1:]
-    for i in range(len(root2)):
-        for j in range(len(root2[i])):
-            root2[i][j] -= 1
-
-    tree = build_tree(root1, triplets_to_print, 0, len(triplets_to_print) - 1)
-    print_tree(tree)
-    tree2 = build_tree(root2, triplets_to_print, 0, len(triplets_to_print) - 1)
-    print_tree(tree2)
-
-    print(compare_trees(tree, tree2))
-    for word in triplets:
-        print(word[0], binary_search(tree, word[0]))
-
-    return True
 
 
 main()
