@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import networkx as nx
+import sys
+
+sys.setrecursionlimit(10 ** 6)
 
 
 class Node:
@@ -82,20 +85,21 @@ def find_index_based_on_key(key, lines):
 
 
 def calculate_tables(n, p, q):
-    c = [[0 for _ in range(n)] for _ in range(n)]
-    w = [[0 for _ in range(n)] for _ in range(n)]
-    root = [[0 for _ in range(n)] for _ in range(n)]
+    c = [[None for _ in range(n)] for _ in range(n)]
+    w = [[None for _ in range(n)] for _ in range(n)]
+    root = [[None for _ in range(n)] for _ in range(n)]
 
     for i in range(0, n):
         w[i][i] = q[i]
+        c[i][i] = q[i]
 
     for l in range(1, n):
         for i in range(0, n - l):
             j = i + l
             c[i][j] = float('inf')
             w[i][j] = w[i][j - 1] + p[j] + q[j]
-            for r in range(i, j):
-                t = c[i][r] + c[r + 1][j] + w[i][j]
+            for r in range(i + 1, j + 1):
+                t = c[i][r - 1] + c[r][j] + w[i][j]
                 if t < c[i][j]:
                     c[i][j] = t
                     root[i][j] = r
@@ -103,13 +107,13 @@ def calculate_tables(n, p, q):
     return c, root
 
 
-def build_tree(dp_root, lines, start, end):
-    if start == end:
+def build_tree(r, words, i, j):
+    if i == j:
         return None
-    root_index = dp_root[start][end]
-    key = lines[root_index][0]
-    left = build_tree(dp_root, lines, start, root_index)
-    right = build_tree(dp_root, lines, root_index + 1, end)
+    r_i = r[i][j]
+    key = words[r_i]
+    left = build_tree(r, words, i, r_i - 1)
+    right = build_tree(r, words, r_i, j)
     return Node(key, left, right)
 
 
@@ -133,6 +137,28 @@ def print_tree(tree):
     plt.show()
 
 
+def main():
+    triplets = create_triplets_k_p_q()
+    words = [triplet[0] for triplet in triplets]
+    p = [triplet[1] for triplet in triplets]
+    q = [triplet[2] for triplet in triplets]
+    n = len(words)
+
+    # p = [3, 3, 1, 1]
+    # q = [2, 3, 1, 1, 1]
+    # n = 4
+    c, r = calculate_tables(n, p, q)
+    print(c[0][-1])
+    tree = build_tree(r, words, 0, n - 1)
+    print_tree(tree)
+    return True
+
+
+main()
+
+
+
+
 def binary_search(tree, word, comparisons=0):
     if tree is None:
         return False, comparisons
@@ -142,14 +168,3 @@ def binary_search(tree, word, comparisons=0):
     if tree.key > word:
         return binary_search(tree.left, word, comparisons)
     return binary_search(tree.right, word, comparisons)
-
-
-def main():
-    triplets = create_triplets_k_p_q()
-    triplets_to_print = triplets.copy()
-    triplets_to_print.pop(0)
-    c1, root1 = calculate_tables(len(triplets) - 1, [triplet[1] for triplet in triplets],
-                                 [triplet[2] for triplet in triplets])
-
-
-main()
