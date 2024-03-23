@@ -137,28 +137,6 @@ def print_tree(tree):
     plt.show()
 
 
-def main():
-    triplets = create_triplets_k_p_q()
-    words = [triplet[0] for triplet in triplets]
-    p = [triplet[1] for triplet in triplets]
-    q = [triplet[2] for triplet in triplets]
-    n = len(words)
-
-    # p = [3, 3, 1, 1]
-    # q = [2, 3, 1, 1, 1]
-    # n = 4
-    c, r = calculate_tables(n, p, q)
-    print(c[0][-1])
-    tree = build_tree(r, words, 0, n - 1)
-    print_tree(tree)
-    return True
-
-
-main()
-
-
-
-
 def binary_search(tree, word, comparisons=0):
     if tree is None:
         return False, comparisons
@@ -168,3 +146,28 @@ def binary_search(tree, word, comparisons=0):
     if tree.key > word:
         return binary_search(tree.left, word, comparisons)
     return binary_search(tree.right, word, comparisons)
+
+
+def main():
+    triplets = create_triplets_k_p_q()
+    words = [triplet[0] for triplet in triplets]
+    p = [triplet[1] for triplet in triplets]
+    q = [triplet[2] for triplet in triplets]
+    n = len(words)
+
+    c, r = calculate_tables(n, p, q)
+    print(c[0][-1])
+    tree = build_tree(r, words, 0, n - 1)
+    print_tree(tree)
+
+    # print for each word binary search
+    for word in words:
+        found, comparisons = binary_search(tree, word)
+        if not found:
+            print(f'Word {word} not found in the tree')
+        else:
+            print(f'Word {word} found in the tree with {comparisons} comparisons')
+    return True
+
+
+main()
