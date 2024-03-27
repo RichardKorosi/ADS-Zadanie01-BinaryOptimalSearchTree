@@ -124,7 +124,7 @@ def binary_search(root, key):
     while current:
         comparisons += 1
         if key == current.key:
-            print(f"FOUND({comparisons}): {current.key.ljust(10)} | {visited_nodes}")
+            print(f"TRUE: {current.key.ljust(12)}" + f"|{comparisons}|".ljust(7) + f"{visited_nodes}")
             return comparisons, current
         elif key < current.key:
             if current.left is not None:
@@ -139,7 +139,7 @@ def binary_search(root, key):
             else:
                 break  # Exit the loop if current.right is None
 
-    print(f"NOT FOUND({comparisons}): {key} | {visited_nodes}")
+    print(f"FALSE: {key.ljust(12)}" + f"|{comparisons}|".ljust(7) + f"{visited_nodes}")
     return comparisons, None
 
 
@@ -156,7 +156,7 @@ def main():
 
     for word in words[1::]:
         binary_search(tree, word)
-    binary_search(tree, "day")
+    binary_search(tree, "boob")
     return True
 
 
