@@ -116,15 +116,32 @@ def build_tree(r, words, i, j):
 
 
 
-def binary_search(tree, word, comparisons=0):
-    if tree is None:
-        return False, comparisons
-    comparisons += 1
-    if tree.key == word:
-        return True, comparisons
-    if tree.key > word:
-        return binary_search(tree.left, word, comparisons)
-    return binary_search(tree.right, word, comparisons)
+def binary_search(root, key):
+    comparisons = 0
+    current = root
+    visited_nodes = [root.key]
+
+    while current:
+        comparisons += 1
+        if key == current.key:
+            print(f"FOUND({comparisons}): {current.key.ljust(10)} | {visited_nodes}")
+            return comparisons, current
+        elif key < current.key:
+            if current.left is not None:
+                visited_nodes.append(current.left.key)
+                current = current.left
+            else:
+                break  # Exit the loop if current.left is None
+        else:
+            if current.right is not None:
+                visited_nodes.append(current.right.key)
+                current = current.right
+            else:
+                break  # Exit the loop if current.right is None
+
+    print(f"NOT FOUND({comparisons}): {key} | {visited_nodes}")
+    return comparisons, None
+
 
 
 def main():
@@ -135,17 +152,13 @@ def main():
     n = len(words)
 
     c, r = calculate_tables(n, p, q)
-    print(c[0][-1])
     tree = build_tree(r, words, 0, n - 1)
 
-    # print for each word binary search
-    for word in words:
-        found, comparisons = binary_search(tree, word)
-        if not found:
-            print(f'Word {word} not found in the tree')
-        else:
-            print(f'Word {word} found in the tree with {comparisons} comparisons')
+    for word in words[1::]:
+        binary_search(tree, word)
+    binary_search(tree, "day")
     return True
+
 
 
 main()
