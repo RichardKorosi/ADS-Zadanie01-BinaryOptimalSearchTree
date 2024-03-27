@@ -34,17 +34,17 @@ def create_triplets_k_p_q(file_path='dictionary.txt'):
     for key_line in keys_lines:
         qs.append(find_qi(keys_lines, lines, key_line))
 
-    # print(f'My sum: {sum([key_line[0] for key_line in keys_lines]) + sum(qs)}')
-    # print(f'Frequency sum: {full_freq}')
-    #
-    # print(f'Sum Qs:{sum(qs)}')
-    # print(f'My Ps:{sum([key_line[0] for key_line in keys_lines])}')
+
+    sumQ = round(sum(qs), 10)
+    sumP = round(sum([key_line[0] for key_line in keys_lines]), 10)
+    sumSums = sumQ + sumP
+    print(f'Sum Qs:{sumQ}')
+    print(f'Sum Ps:{sumP}')
+    print(f'Sum Qs+Ps: {sumSums}\n')
 
     triplets.append(['', 0, qs[0]])
     for i in range(len(keys_lines)):
         triplets.append([keys_lines[i][1], keys_lines[i][0], qs[i + 1]])
-
-    # print(f'Sum in triplets: {round(sum([triplet[1] + triplet[2] for triplet in triplets]), 12)}')
 
     return triplets
 
@@ -154,9 +154,9 @@ def main():
     c, r = calculate_tables(n, p, q)
     tree = build_tree(r, words, 0, n - 1)
 
-    for word in words[1::]:
-        binary_search(tree, word)
-    binary_search(tree, "boob")
+    # for word in words[1::]:
+    #     binary_search(tree, word)
+    # binary_search(tree, "aa")
     return True
 
 
