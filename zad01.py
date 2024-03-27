@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-import networkx as nx
 import sys
 
 sys.setrecursionlimit(10 ** 6)
@@ -117,25 +115,6 @@ def build_tree(r, words, i, j):
     return Node(key, left, right)
 
 
-def add_nodes_edges(G, node, pos=None, x=0, y=0, layer=1):
-    if pos is None:
-        pos = {}
-    pos[node.key] = (x, y)
-    if node.left is not None:
-        G.add_edge(node.key, node.left.key)
-        pos = add_nodes_edges(G, node.left, pos, x - 1 / layer, y - 1, layer * 2)
-    if node.right is not None:
-        G.add_edge(node.key, node.right.key)
-        pos = add_nodes_edges(G, node.right, pos, x + 1 / layer, y - 1, layer * 2)
-    return pos
-
-
-def print_tree(tree):
-    G = nx.DiGraph()
-    pos = add_nodes_edges(G, tree)
-    nx.draw(G, pos, with_labels=True, node_color='white', font_size=6, arrows=False)
-    plt.show()
-
 
 def binary_search(tree, word, comparisons=0):
     if tree is None:
@@ -158,7 +137,6 @@ def main():
     c, r = calculate_tables(n, p, q)
     print(c[0][-1])
     tree = build_tree(r, words, 0, n - 1)
-    print_tree(tree)
 
     # print for each word binary search
     for word in words:
