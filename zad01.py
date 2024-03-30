@@ -117,18 +117,17 @@ def build_tree(r, words, i, j):
     return Node(key, left, right)
 
 
-
-def binary_search(root, key):
+def binary_search(root, searched_key):
     comparisons = 0
     current = root
     visited_nodes = [root.key]
 
     while current:
         comparisons += 1
-        if key == current.key:
+        if searched_key == current.key:
             print(f"TRUE: {current.key.ljust(12)}" + f"|{comparisons}|".ljust(7) + f"{visited_nodes}")
             return comparisons, current
-        elif key < current.key:
+        elif searched_key < current.key:
             if current.left is not None:
                 visited_nodes.append(current.left.key)
                 current = current.left
@@ -141,7 +140,7 @@ def binary_search(root, key):
             else:
                 break  # Exit the loop if current.right is None
 
-    print(f"FALSE: {key.ljust(12)}" + f"|{comparisons}|".ljust(7) + f"{visited_nodes}")
+    print(f"FALSE: {searched_key.ljust(12)}" + f"|{comparisons}|".ljust(7) + f"{visited_nodes}")
     return comparisons, None
 
 
