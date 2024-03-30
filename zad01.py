@@ -44,7 +44,7 @@ def create_triplets_k_p_q(file_path='dictionary.txt'):
     print(f'Sum Ps:{sumP}')
     print(f'Sum Qs+Ps: {sumSums}\n')
 
-    triplets.append(['', 0, qs[0]])
+    triplets.append([None, None, qs[0]])
     for i in range(len(keys_lines)):
         triplets.append([keys_lines[i][1], keys_lines[i][0], qs[i + 1]])
 
@@ -62,17 +62,17 @@ def find_q0(key_lines, lines):
 
 def find_qi(key_lines, lines, key_line):
     q = 0
-    current_word = key_line[1]
+    current_key = key_line[1]
     if key_lines.index(key_line) + 1 < len(key_lines):
-        end_word = key_lines[key_lines.index(key_line) + 1][1]
-        current_index = find_index_based_on_key(current_word, lines)
-        end_index = find_index_based_on_key(end_word, lines)
+        next_key = key_lines[key_lines.index(key_line) + 1][1]
+        current_index = find_index_based_on_key(current_key, lines)
+        next_index = find_index_based_on_key(next_key, lines)
     else:
-        end_word = lines[-1][1]
-        current_index = find_index_based_on_key(current_word, lines)
-        end_index = find_index_based_on_key(end_word, lines) + 1
+        next_key = lines[-1][1]
+        current_index = find_index_based_on_key(current_key, lines)
+        next_index = find_index_based_on_key(next_key, lines) + 1
 
-    for i in range(current_index + 1, end_index):
+    for i in range(current_index + 1, next_index):
         q += lines[i][0]
     return q
 
@@ -172,12 +172,17 @@ def main():
     q = [triplet[2] for triplet in triplets]
     n = len(words)
 
+    words = ["0", "10", "20", "30", "40"]
+    p = [0,3,3,1,1]
+    q = [2,3,1,1,1]
+    n = len(q)
+
     c, r = calculate_tables(n, p, q)
     tree = build_tree(r, words, 0, n - 1)
 
-    # for word in words[1::]:
-    #     binary_search(tree, word)
-    # binary_search(tree, "aa")
+    for word in words[1::]:
+        binary_search(tree, word)
+    binary_search(tree, "aa")
     print_tree(tree)
     return True
 
