@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import networkx as nx
+import sys
+
+sys.setrecursionlimit(10 ** 6)
 
 
 class Node:
@@ -12,111 +15,133 @@ class Node:
         return f'Node(Key:{self.key},Left:{self.left},Right{self.right})'
 
 
-def prepare_dp_arrays(lines):
-    #  size + 1. pretoze chceme aj pripad ked je 0 uzlov v strome
-    size = len(lines) + 1
-    dp_cost = [[None for _ in range(size)] for _ in range(size)]
-    dp_root = [[None for _ in range(size)] for _ in range(size)]
+def create_triplets_k_p_q(file_path='dictionary.txt'):
+    triplets = []
+    qs = []
+    file = open(file_path, 'r')
+    lines = file.readlines()
+    file.close()
 
-    # Diagonala nul, kde nemame ziadne uzly
-    for i in range(size):
-        dp_cost[i][i] = 0
+    lines = [line.strip().split(' ') for line in lines]
+    lines = [[int(line[0]), line[1]] for line in lines]
+    lines = sorted(lines, key=lambda x: x[1])
+    keys_lines = [line for line in lines if line[0] > 50000]
 
-    return dp_cost, dp_root
+    full_freq = sum([line[0] for line in lines])
+    lines = [[line[0] / full_freq, line[1]] for line in lines]
+    keys_lines = [[line[0] / full_freq, line[1]] for line in keys_lines]
 
+    qs.append(find_q0(keys_lines, lines))
 
-def get_w(dic, start, end):
-    # dic je pole kde kazdy prvok je tuple (frekvencia/pravdepodobnost, slovo)
-    # start a end su indexy do pola dic
-    # l je pocet uzlov v strome
-    w = 0
-    l = end - start
-    for i in range(start, start + l):
-        w += dic[i][0]
-    return w
+    for key_line in keys_lines:
+        qs.append(find_qi(keys_lines, lines, key_line))
 
 
-def get_combinations_of_c(m, l):
-    # vytvor dvojice s rozdielom medzi prvkami l
-    # m je maximalny index v poli
-    # napr pre m = 4 a l = 2 vytvori [(0, 2), (1, 3), (2, 4)]
-    tuples = [(x, x + l) for x in range(m - l + 1)]
-    return tuples
+    sumQ = round(sum(qs), 10)
+    sumP = round(sum([key_line[0] for key_line in keys_lines]), 10)
+    sumSums = sumQ + sumP
+    print(f'Sum Qs:{sumQ}')
+    print(f'Sum Ps:{sumP}')
+    print(f'Sum Qs+Ps: {sumSums}\n')
+
+    triplets.append([None, None, qs[0]])
+    for i in range(len(keys_lines)):
+        triplets.append([keys_lines[i][1], keys_lines[i][0], qs[i + 1]])
+
+    return triplets
 
 
-def min_cost(dic, dp_cost, dp_root, c):
-    cl, cr = c[0], c[1]
-    w = get_w(dic, cl, cr)
-    mini = float('inf')
-    mini_root = None
-
-    for i in range(cl, cr):
-        cost = dp_cost[cl][i] + dp_cost[i + 1][cr] + w
-        if cost < mini:
-            mini = cost
-            mini_root = i
-    dp_cost[cl][cr] = mini
-    dp_root[cl][cr] = mini_root
+def find_q0(key_lines, lines):
+    q0 = 0
+    current = lines[0]
+    while not any(current[1] == key_line[1] for key_line in key_lines):
+        q0 += current[0]
+        current = lines[lines.index(current) + 1]
+    return q0
 
 
-def create_dp_arrays(dic):
-    dp_cost, dp_root = prepare_dp_arrays(dic)
-    for l in range(1, len(dp_cost)):
-        combs_c = get_combinations_of_c(len(dic), l)
-        for c in combs_c:
-            min_cost(dic, dp_cost, dp_root, c)
-    return dp_cost, dp_root
+def find_qi(key_lines, lines, key_line):
+    q = 0
+    current_key = key_line[1]
+    if key_lines.index(key_line) + 1 < len(key_lines):
+        next_key = key_lines[key_lines.index(key_line) + 1][1]
+        current_index = find_index_based_on_key(current_key, lines)
+        next_index = find_index_based_on_key(next_key, lines)
+    else:
+        next_key = lines[-1][1]
+        current_index = find_index_based_on_key(current_key, lines)
+        next_index = find_index_based_on_key(next_key, lines) + 1
+
+    for i in range(current_index + 1, next_index):
+        q += lines[i][0]
+    return q
 
 
-def print_dp(dp_cost, dp_root):
-    for row in dp_cost:
-        for element in row:
-            if element is None:
-                print('None'.ljust(9), end='')
-            else:
-                print(str(round(element, 3)).ljust(9), end='')
-        print()
-    print()
-    for row in dp_root:
-        for element in row:
-            if element is None:
-                print('None'.ljust(9), end='')
-            else:
-                print(str(round(element, 3)).ljust(9), end='')
-        print()
+def find_index_based_on_key(key, lines):
+    for line in lines:
+        if line[1] == key:
+            return lines.index(line)
+    return -1
 
 
-def build_tree(dp_root, lines, start, end):
-    if start == end:
+def calculate_tables(n, p, q):
+    c = [[None for _ in range(n)] for _ in range(n)]
+    w = [[None for _ in range(n)] for _ in range(n)]
+    root = [[None for _ in range(n)] for _ in range(n)]
+
+    for i in range(0, n):
+        w[i][i] = q[i]
+        c[i][i] = q[i]
+
+    for l in range(1, n):
+        for i in range(0, n - l):
+            j = i + l
+            c[i][j] = float('inf')
+            w[i][j] = w[i][j - 1] + p[j] + q[j]
+            for r in range(i + 1, j + 1):
+                t = c[i][r - 1] + c[r][j] + w[i][j]
+                if t < c[i][j]:
+                    c[i][j] = t
+                    root[i][j] = r
+
+    return c, root
+
+
+def build_tree(r, words, i, j):
+    if i == j:
         return None
-    root_index = dp_root[start][end]
-    key = lines[root_index][1]
-    left = build_tree(dp_root, lines, start, root_index)
-    right = build_tree(dp_root, lines, root_index + 1, end)
+    r_i = r[i][j]
+    key = words[r_i]
+    left = build_tree(r, words, i, r_i - 1)
+    right = build_tree(r, words, r_i, j)
     return Node(key, left, right)
 
 
-def plot_tree(root, x=0, y=0, spacing=100, ax=None):
-    if ax is None:
-        fig, ax = plt.subplots()
-        ax.set_aspect('equal')
-        ax.axis('off')
+def binary_search(root, searched_key):
+    comparisons = 0
+    current = root
+    visited_nodes = [root.key]
 
-    if root is not None:
-        ax.plot(x, y, 'o', color='black')  # Plot the current node
-        ax.text(x, y, str(root.key), verticalalignment='bottom', horizontalalignment='center')
+    while current:
+        comparisons += 1
+        if searched_key == current.key:
+            print(f"TRUE: {current.key.ljust(12)}" + f"|{comparisons}|".ljust(7) + f"{visited_nodes}")
+            return comparisons, current
+        elif searched_key < current.key:
+            if current.left is not None:
+                visited_nodes.append(current.left.key)
+                current = current.left
+            else:
+                break  # Exit the loop if current.left is None
+        else:
+            if current.right is not None:
+                visited_nodes.append(current.right.key)
+                current = current.right
+            else:
+                break  # Exit the loop if current.right is None
 
-        if root.left is not None:
-            # Plot left child and edge
-            new_spacing = spacing / 2
-            ax.plot([x, x - new_spacing], [y, y - spacing], '-', color='black')
-            plot_tree(root.left, x - new_spacing, y - spacing, new_spacing, ax)
-
-        if root.right is not None:
-            # Plot right child and edge
-            new_spacing = spacing / 2
-            ax.plot([x, x + new_spacing], [y, y - spacing], '-', color='black')
-            plot_tree(root.right, x + new_spacing, y - spacing, new_spacing, ax)
+    print(f"FALSE: {searched_key.ljust(12)}" + f"|{comparisons}|".ljust(7) + f"{visited_nodes}")
+    return comparisons, None
 
 
 def add_nodes_edges(G, node, pos=None, x=0, y=0, layer=1):
@@ -132,7 +157,7 @@ def add_nodes_edges(G, node, pos=None, x=0, y=0, layer=1):
     return pos
 
 
-def plot_tree_2(tree):
+def print_tree(tree):
     G = nx.DiGraph()
     pos = add_nodes_edges(G, tree)
     nx.draw(G, pos, with_labels=True, node_color='white', font_size=6, arrows=False)
@@ -140,22 +165,26 @@ def plot_tree_2(tree):
 
 
 def main():
-    file_path = 'dictionary.txt'
-    file = open(file_path, 'r')
-    lines = file.readlines()
-    file.close()
-    lines = [line.strip().split(' ') for line in lines]
-    lines = [[int(line[0]), line[1]] for line in lines]
-    sum_freq = sum([line[0] for line in lines])
-    lines = [line for line in lines if line[0] > 50000]
-    lines = sorted(lines, key=lambda x: x[1])
-    lines = [[line[0] / sum_freq, line[1]] for line in lines]
-    dp_cost, dp_root = create_dp_arrays(lines)
-    # print_dp(dp_cost, dp_root)
+    triplets = create_triplets_k_p_q()
+    words = [triplet[0] for triplet in triplets]
+    p = [triplet[1] for triplet in triplets]
+    q = [triplet[2] for triplet in triplets]
+    n = len(words)
 
-    root = build_tree(dp_root, lines, 0, len(lines))
-    plot_tree_2(root)
-    print(dp_cost[0][len(lines)])
+    # words = ["0", "10", "20", "30", "40"]
+    # p = [0,3,3,1,1]
+    # q = [2,3,1,1,1]
+    # n = len(q)
+
+    c, r = calculate_tables(n, p, q)
+    tree = build_tree(r, words, 0, n - 1)
+
+    for word in words[1::]:
+        binary_search(tree, word)
+    binary_search(tree, "aa")
+    print_tree(tree)
+    return True
+
 
 
 main()

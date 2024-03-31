@@ -1,9 +1,12 @@
-import matplotlib.pyplot as plt
-import networkx as nx
-import sys
+"""
+Algoritmy a dátové štruktúry - Zadanie 1
+Richard Körösi (111313)
 
-sys.setrecursionlimit(10 ** 6)
-
+Algoritmus pre zostrojenie optimálneho binárneho vyhľadávacieho stromu
+bol inšpirovaný zdrojom:
+Introduction  to  Algorithms  od  autorov  Cormen,  Leiserson,  Rivest  a  Stein.
+(Kapitola 15.5 - Optimal binary search trees)
+"""
 
 class Node:
     def __init__(self, key, left=None, right=None):
@@ -84,7 +87,7 @@ def find_index_based_on_key(key, lines):
     return -1
 
 
-def calculate_tables(n, p, q):
+def optimal_bst(n, p, q):
     c = [[None for _ in range(n)] for _ in range(n)]
     w = [[None for _ in range(n)] for _ in range(n)]
     root = [[None for _ in range(n)] for _ in range(n)]
@@ -117,7 +120,7 @@ def build_tree(r, words, i, j):
     return Node(key, left, right)
 
 
-def binary_search(root, searched_key):
+def pocet_porovnani(root, searched_key):
     comparisons = 0
     current = root
     visited_nodes = [root.key]
@@ -132,36 +135,16 @@ def binary_search(root, searched_key):
                 visited_nodes.append(current.left.key)
                 current = current.left
             else:
-                break  # Exit the loop if current.left is None
+                break
         else:
             if current.right is not None:
                 visited_nodes.append(current.right.key)
                 current = current.right
             else:
-                break  # Exit the loop if current.right is None
+                break
 
     print(f"FALSE: {searched_key.ljust(12)}" + f"|{comparisons}|".ljust(7) + f"{visited_nodes}")
     return comparisons, None
-
-
-def add_nodes_edges(G, node, pos=None, x=0, y=0, layer=1):
-    if pos is None:
-        pos = {}
-    pos[node.key] = (x, y)
-    if node.left is not None:
-        G.add_edge(node.key, node.left.key)
-        pos = add_nodes_edges(G, node.left, pos, x - 1 / layer, y - 1, layer * 2)
-    if node.right is not None:
-        G.add_edge(node.key, node.right.key)
-        pos = add_nodes_edges(G, node.right, pos, x + 1 / layer, y - 1, layer * 2)
-    return pos
-
-
-def print_tree(tree):
-    G = nx.DiGraph()
-    pos = add_nodes_edges(G, tree)
-    nx.draw(G, pos, with_labels=True, node_color='white', font_size=6, arrows=False)
-    plt.show()
 
 
 def main():
@@ -171,18 +154,16 @@ def main():
     q = [triplet[2] for triplet in triplets]
     n = len(words)
 
-    words = ["0", "10", "20", "30", "40"]
-    p = [0,3,3,1,1]
-    q = [2,3,1,1,1]
-    n = len(q)
-
-    c, r = calculate_tables(n, p, q)
+    c, r = optimal_bst(n, p, q)
     tree = build_tree(r, words, 0, n - 1)
 
     for word in words[1::]:
-        binary_search(tree, word)
-    binary_search(tree, "aa")
-    print_tree(tree)
+        pocet_porovnani(tree, word)
+    print("\n")
+    pocet_porovnani(tree, "searched")
+    pocet_porovnani(tree, "swan")
+    pocet_porovnani(tree, "mansion")
+    pocet_porovnani(tree, "arrows")
     return True
 
 
